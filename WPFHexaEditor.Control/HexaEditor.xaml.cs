@@ -21,6 +21,34 @@ using WPFHexaEditor.Core.MethodExtention;
 
 namespace WPFHexaEditor.Control
 {
+    
+    /// <summary>
+    /// Resources are moved here;
+    /// </summary>
+    public partial class HexaEditor {
+        #region Fonts
+        public static readonly FontWeight NormalFontWeight = FontWeights.Normal;
+        public static readonly FontWeight BoldFontWeight = FontWeights.Bold;
+        #endregion
+
+        #region Colors
+        private static readonly SolidColorBrush BookMarkColor = new SolidColorBrush(Color.FromArgb(0xb2, 0x00, 0x00, 0xff));
+        private static readonly SolidColorBrush SearchBookMarkColor = new SolidColorBrush(Color.FromArgb(0xff, 0xff, 0x8b, 0x00));
+        private static readonly SolidColorBrush SelectionStartBookMarkColor = new SolidColorBrush(Colors.Blue);
+        private static readonly SolidColorBrush ByteModifiedMarkColor = new SolidColorBrush(Color.FromArgb(0xcc, 0x68, 0x71, 0x7c));
+        private static readonly SolidColorBrush ByteDeletedMarkColor = new SolidColorBrush(Color.FromArgb(0xb2, 0xff, 0x00, 0x00));
+
+        //private static readonly SolidColorBrush FirstColor = new SolidColorBrush(Color.FromArgb(0xcc, 0x00, 0x14, 0xff));
+        private static readonly SolidColorBrush SecondColor = new SolidColorBrush(Color.FromArgb(0xcc, 0x00, 0x78, 0xff));
+        //private static readonly SolidColorBrush ByteModifiedColor = new SolidColorBrush(Color.FromArgb(0xcc, 0x68, 0x71, 0x7c));
+        //private static readonly SolidColorBrush MouseOverColor = new SolidColorBrush(Color.FromArgb(0xb2, 0x00, 0x81, 0xff));
+        //private static readonly SolidColorBrush HighLightColor = new SolidColorBrush(Color.FromArgb(0xb2, 0xff, 0xff, 0x00));
+        //private static readonly SolidColorBrush ByteDeletedColor = new SolidColorBrush(Color.FromArgb(0xb2, 0xff, 0x00, 0x00));
+
+        public static readonly SolidColorBrush LineInfoColor = new SolidColorBrush(Color.FromArgb(0xff, 0x63, 0xa3, 0xf1));
+        #endregion
+    }
+    
     /// <summary>
     /// 2016 - Derek Tremblay (derektremblay666@gmail.com)
     /// WPF Hexadecimal editor control
@@ -1764,12 +1792,12 @@ namespace WPFHexaEditor.Control
                 UpdateVerticalScroll();
                 UpdateHexHeader();
 
+                RefreshView(true);
+
                 //Load file with ASCII character table;
                 var previousTable = TypeOfCharacterTable;
                 TypeOfCharacterTable = CharacterTableType.ASCII;
-
-                RefreshView(true);
-
+                
                 //Replace previous character table
                 TypeOfCharacterTable = previousTable;
 
@@ -1960,12 +1988,14 @@ namespace WPFHexaEditor.Control
         /// <param name="ControlResize"></param>
         public void RefreshView(bool ControlResize = false, bool RefreshData = true)
         {
-            UpdateLinesInfo();
+            //UpdateLinesInfo();
+            UpdateLinesInfo2();
 
             if (RefreshData)
             {
-                UpdateStringDataViewer(ControlResize);
-                UpdateDataViewer(ControlResize);                
+                //UpdateStringDataViewer(ControlResize);
+                //UpdateDataViewer(ControlResize);                
+                UpdateDataAndStringViewer(ControlResize);
             }
 
             //Update visual of byte
@@ -2048,7 +2078,7 @@ namespace WPFHexaEditor.Control
                             if (_provider.Position >= _provider.Length)
                                 break;
 
-                            StringByteControl sbCtrl = new StringByteControl(this);
+                            StringByteControl sbCtrl = new StringByteControl();
 
                             sbCtrl.BytePositionInFile = _provider.Position;
                             sbCtrl.StringByteModified += Control_ByteModified;
@@ -2064,11 +2094,9 @@ namespace WPFHexaEditor.Control
                             sbCtrl.MoveRight += Control_MoveRight;
                             sbCtrl.ByteDeleted += Control_ByteDeleted;
                             sbCtrl.EscapeKey += Control_EscapeKey;
-                            sbCtrl.CTRLZKey += Control_CTRLZKey;
-                            sbCtrl.CTRLCKey += Control_CTRLCKey;
-                            sbCtrl.CTRLVKey += Control_CTRLVKey;
-                            sbCtrl.CTRLAKey += Control_CTRLAKey;
 
+                            #region I think these shouldn't be the content of control,they should be bond (input bindings) in hexeditor control with a command in viewmodel;
+                            #endregion
 
                             sbCtrl.InternalChange = true;
                             sbCtrl.TBLCharacterTable = _TBLCharacterTable;
@@ -2135,6 +2163,223 @@ namespace WPFHexaEditor.Control
             else
             {
                 StringDataStackPanel.Children.Clear();
+            }
+        }
+
+        private long priLevel = 0;
+        /// <summary>
+        /// Save the buffer as a field,To save the time when Scolling.not building them every time when scolling;
+        /// </summary>
+        private byte[] buffer;
+        /// <summary>
+        /// Build the stringbytecontrols and hexabytecontrols;
+        /// </summary>
+        /// <param name="e"></param>
+        private void BuildDataLines(int e) {
+            for (int lineIndex = StringDataStackPanel.Children.Count; lineIndex < e; lineIndex++) {
+                #region
+                StackPanel dataLineStack = new StackPanel();
+                dataLineStack.Height = _lineInfoHeight;
+                dataLineStack.Orientation = Orientation.Horizontal;
+
+                for (int i = 0; i < BytePerLine; i++) {
+                    StringByteControl sbCtrl = new StringByteControl();
+
+                    //sbCtrl.StringByteModified += Control_ByteModified;
+                    sbCtrl.ReadOnlyMode = ReadOnlyMode;
+                    sbCtrl.MoveNext += Control_MoveNext;
+                    sbCtrl.MovePrevious += Control_MovePrevious;
+                    sbCtrl.MouseSelection += Control_MouseSelection;
+                    sbCtrl.Click += Control_Click;
+                    sbCtrl.RightClick += Control_RightClick;
+                    sbCtrl.MoveUp += Control_MoveUp;
+                    sbCtrl.MoveDown += Control_MoveDown;
+                    sbCtrl.MoveLeft += Control_MoveLeft;
+                    sbCtrl.MoveRight += Control_MoveRight;
+                    sbCtrl.ByteDeleted += Control_ByteDeleted;
+                    sbCtrl.EscapeKey += Control_EscapeKey;
+
+                    sbCtrl.InternalChange = true;
+                    sbCtrl.TBLCharacterTable = _TBLCharacterTable;
+                    sbCtrl.TypeOfCharacterTable = TypeOfCharacterTable;
+
+                    sbCtrl.Byte = null;
+                    sbCtrl.ByteNext = null;
+                    sbCtrl.BytePositionInFile = -1;
+
+                    sbCtrl.InternalChange = false;
+
+                    dataLineStack.Children.Add(sbCtrl);
+                }
+                StringDataStackPanel.Children.Add(dataLineStack);
+                #endregion
+
+                #region
+                StackPanel hexaDataLineStack = new StackPanel();
+                hexaDataLineStack.Height = _lineInfoHeight;
+                hexaDataLineStack.Orientation = Orientation.Horizontal;
+
+                for (int i = 0; i < BytePerLine; i++) {
+                    HexByteControl byteControl = new HexByteControl();
+
+                    byteControl.ReadOnlyMode = ReadOnlyMode;
+                    byteControl.MouseSelection += Control_MouseSelection;
+                    byteControl.Click += Control_Click;
+                    byteControl.RightClick += Control_RightClick;
+                    byteControl.MoveNext += Control_MoveNext;
+                    byteControl.MovePrevious += Control_MovePrevious;
+                    //byteControl.ByteModified += Control_ByteModified;
+                    byteControl.MoveUp += Control_MoveUp;
+                    byteControl.MoveDown += Control_MoveDown;
+                    byteControl.MoveLeft += Control_MoveLeft;
+                    byteControl.MoveRight += Control_MoveRight;
+                    byteControl.MovePageUp += Control_MovePageUp;
+                    byteControl.MovePageDown += Control_MovePageDown;
+                    byteControl.ByteDeleted += Control_ByteDeleted;
+                    byteControl.EscapeKey += Control_EscapeKey;
+
+                    byteControl.InternalChange = true;
+                    byteControl.Byte = null;
+                    byteControl.BytePositionInFile = -1;
+                    byteControl.InternalChange = false;
+
+                    hexaDataLineStack.Children.Add(byteControl);
+                    byteControl.ApplyTemplate();
+                }
+
+                HexDataStackPanel.Children.Add(hexaDataLineStack);
+                #endregion
+            }
+        }
+        /// <summary>
+        /// Update the data and string stackpanels;
+        /// </summary>
+        private void UpdateDataAndStringViewer(bool ControlResize) {
+            var curLevel = ++priLevel;
+            if (ByteProvider.CheckIsOpen(_provider)) {
+                if (ControlResize) {
+                    #region 
+                    if (buffer == null) {
+                        var fullSizeReadyToRead = GetMaxVisibleLine() * BytePerLine + 1;
+                        buffer = new byte[fullSizeReadyToRead];
+                        BuildDataLines((int)GetMaxVisibleLine());
+                    }
+                    else {
+                        if (buffer.Length < GetMaxVisibleLine() * BytePerLine + 1) {
+                            var fullSizeReadyToRead = GetMaxVisibleLine() * BytePerLine + 1;
+                            BuildDataLines((int)GetMaxVisibleLine());
+                            buffer = new byte[fullSizeReadyToRead];
+                        }
+                    }
+                    #endregion
+                }
+
+                if (LinesInfoStackPanel.Children.Count == 0) {
+                    return;
+                }
+
+                var firstInfoLabel = LinesInfoStackPanel.Children[0] as TextBlock;
+                var startPosition = ByteConverters.DecimalLiteralToLong(firstInfoLabel.Text);
+                var sizeReadyToRead = LinesInfoStackPanel.Children.Count * BytePerLine + 1;
+                _provider.Position = startPosition;
+                var readSize = _provider.Read(buffer, 0, sizeReadyToRead);
+
+                var index = 0;
+
+                var count = HexDataStackPanel.Children.Count;
+
+                #region
+                for (int stackIndex = 0; stackIndex < count; stackIndex++) {
+                    foreach (HexByteControl byteControl in ((StackPanel)HexDataStackPanel.Children[stackIndex]).Children) {
+                        byteControl.Action = ByteAction.Nothing;
+                        byteControl.ReadOnlyMode = ReadOnlyMode;
+
+                        byteControl.InternalChange = true;
+
+                        if (index < readSize && priLevel == curLevel) {
+                            byteControl.Byte = buffer[index];
+                            byteControl.BytePositionInFile = startPosition + index;
+                        }
+                        else {
+                            byteControl.Byte = null;
+                            byteControl.BytePositionInFile = -1;
+                        }
+                        byteControl.InternalChange = false;
+                        index++;
+                    }
+
+                }
+                #endregion
+
+                index = 0;
+
+                #region
+                for (int stackIndex = 0; stackIndex < count; stackIndex++) {
+                    foreach (StringByteControl sbCtrl in ((StackPanel)StringDataStackPanel.Children[stackIndex]).Children) {
+                        sbCtrl.Action = ByteAction.Nothing;
+                        sbCtrl.ReadOnlyMode = ReadOnlyMode;
+
+                        sbCtrl.InternalChange = true;
+                        sbCtrl.TBLCharacterTable = _TBLCharacterTable;
+                        sbCtrl.TypeOfCharacterTable = TypeOfCharacterTable;
+
+                        if (index < readSize) {
+                            //sbCtrl.Byte = (byte)_provider.ReadByte();
+                            sbCtrl.Byte = buffer[index];
+                            sbCtrl.BytePositionInFile = startPosition + index;
+                            if (index < readSize - 1) {
+                                sbCtrl.ByteNext = buffer[index + 1];
+                            }
+                            else {
+                                sbCtrl.ByteNext = null;
+                            }
+                        }
+                        else {
+                            sbCtrl.Byte = null;
+                            sbCtrl.ByteNext = null;
+                            sbCtrl.BytePositionInFile = -1;
+                        }
+                        sbCtrl.InternalChange = false;
+                        index++;
+                    }
+                }
+                #endregion
+
+            }
+            else {
+                buffer = null;
+                TraverseDataControls(control => {
+                    control.BytePositionInFile = -1;
+                    control.Byte = null;
+                    control.IsHighLight = false;
+                    control.IsFocus = false;
+                    control.IsSelected = false;
+                });
+                TraverseStringControls(control => {
+                    control.BytePositionInFile = -1;
+                    control.Byte = null;
+                    control.ByteNext = null;
+                    control.IsHighLight = false;
+                    control.IsSelected = false;
+                });
+            }
+
+        }
+
+        private void TraverseDataControls(Action<HexByteControl> act) {
+            foreach (StackPanel hexDataStack in HexDataStackPanel.Children) {
+                //HexByte panel
+                foreach (HexByteControl byteControl in hexDataStack.Children) {
+                    act(byteControl);
+                }
+            }
+        }
+        private void TraverseStringControls(Action<StringByteControl> act) {
+            foreach (StackPanel stringDataStack in StringDataStackPanel.Children) {
+                //Stringbyte panel
+                foreach (StringByteControl sbControl in stringDataStack.Children) {
+                    act(sbControl);
+                }
             }
         }
 
@@ -2333,7 +2578,7 @@ namespace WPFHexaEditor.Control
                             if (_provider.Position >= _provider.Length)
                                 break;
 
-                            HexByteControl byteControl = new HexByteControl(this);
+                            HexByteControl byteControl = new HexByteControl();
 
                             byteControl.BytePositionInFile = _provider.Position;
                             byteControl.ReadOnlyMode = ReadOnlyMode;
@@ -2351,16 +2596,18 @@ namespace WPFHexaEditor.Control
                             byteControl.MovePageDown += Control_MovePageDown;
                             byteControl.ByteDeleted += Control_ByteDeleted;
                             byteControl.EscapeKey += Control_EscapeKey;
-                            byteControl.CTRLZKey += Control_CTRLZKey;
-                            byteControl.CTRLCKey += Control_CTRLCKey;
-                            byteControl.CTRLVKey += Control_CTRLVKey;
-                            byteControl.CTRLAKey += Control_CTRLAKey;
+                            //I think these are set in inputbinding by users,and i have't implemented them on my version.
+                            //byteControl.CTRLZKey += Control_CTRLZKey;
+                            //byteControl.CTRLCKey += Control_CTRLCKey;
+                            //byteControl.CTRLVKey += Control_CTRLVKey;
+                            //byteControl.CTRLAKey += Control_CTRLAKey;
 
                             //Tooltip update
-                            if (position > _provider.Length)
-                                byteControl.HexByteGrid.ToolTip = null;
+                            if (position > _provider.Length) {
+                                //byteControl.HexByteGrid.ToolTip = null;
+                            }
                             else
-                                byteControl.HexByteGrid.ToolTip = TryFindResource("ByteToolTip");
+                                //byteControl.HexByteGrid.ToolTip = TryFindResource("ByteToolTip");
 
                             byteControl.InternalChange = true;
                             byteControl.Byte = (byte)_provider.ReadByte();
@@ -2401,11 +2648,11 @@ namespace WPFHexaEditor.Control
                                 }
                                 byteControl.InternalChange = false;
 
-                                //Tooltip update
-                                if (position > _provider.Length)
-                                    byteControl.HexByteGrid.ToolTip = null;
-                                else
-                                    byteControl.HexByteGrid.ToolTip = TryFindResource("ByteToolTip");
+                                ////Tooltip update
+                                //if (position > _provider.Length)
+                                //    byteControl.HexByteGrid.ToolTip = null;
+                                //else
+                                //    byteControl.HexByteGrid.ToolTip = TryFindResource("ByteToolTip");
                             }
 
                         stackIndex++;
@@ -2487,6 +2734,44 @@ namespace WPFHexaEditor.Control
                         LineInfoLabel.Text = "0x" + ByteConverters.LongToHex(_provider.Length +1);                        
 
                         LinesInfoStackPanel.Children.Add(LineInfoLabel);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Update the position info panel at left of the control
+        /// </summary>
+        public void UpdateLinesInfo2() {
+            LinesInfoStackPanel.Children.Clear();
+
+            long fds = GetMaxVisibleLine();
+
+            //If the lines are less than "visible lines" create them;
+            var linesCount = LinesInfoStackPanel.Children.Count;
+            if (linesCount < fds) {
+                for (int i = 0; i < fds - linesCount; i++) {
+                    var LineInfoLabel = new TextBlock();
+                    LineInfoLabel.Height = _lineInfoHeight;
+                    LineInfoLabel.Padding = new Thickness(0, 0, 10, 0);
+                    LineInfoLabel.Foreground = LineInfoColor;
+                    LineInfoLabel.MouseDown += LineInfoLabel_MouseDown;
+                    LineInfoLabel.MouseMove += LineInfoLabel_MouseMove;
+                    LineInfoLabel.HorizontalAlignment = HorizontalAlignment.Right;
+                    LineInfoLabel.VerticalAlignment = VerticalAlignment.Center;
+                    LinesInfoStackPanel.Children.Add(LineInfoLabel);
+                }
+
+            }
+
+
+            if (ByteProvider.CheckIsOpen(_provider)) {
+                for (int i = 0; i < fds; i++) {
+                    long firstLineByte = ((long)VerticalScrollBar.Value + i) * BytePerLine;
+                    var LineInfoLabel = (TextBlock)LinesInfoStackPanel.Children[i];
+                    if (firstLineByte < _provider.Length) {
+                        //Create control
+                        LineInfoLabel.Text = string.Format("{0:D8}", firstLineByte);
+                        LineInfoLabel.ToolTip = $"Byte : {firstLineByte.ToString()}";
                     }
                 }
             }

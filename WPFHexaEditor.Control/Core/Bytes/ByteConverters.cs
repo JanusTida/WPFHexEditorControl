@@ -75,6 +75,33 @@ namespace WPFHexaEditor.Core.Bytes
             return sB;
         }
 
+        private static readonly char[] hexbyteArray = new char[2];
+        public static char[] ByteToHexCharArray(byte b) {
+            hexbyteArray[0] = ByteToHexChar(b >> 4);
+            hexbyteArray[1] = ByteToHexChar(b - ((b >> 4) << 4));
+            return hexbyteArray;
+        }
+        public static char ByteToHexChar(int b) {
+            if (b < 10) {
+                return (char)(48 + b);
+            }
+            switch (b) {
+                case 10:
+                    return 'A';
+                case 11:
+                    return 'B';
+                case 12:
+                    return 'C';
+                case 13:
+                    return 'D';
+                case 14:
+                    return 'E';
+                case 15:
+                    return 'F';
+                default:
+                    return 's';
+            }
+        }
         /// <summary>
         /// Convert byte to ASCII string
         /// </summary>
@@ -151,6 +178,16 @@ namespace WPFHexaEditor.Core.Bytes
             }
 
             return value;
+        }
+
+        public static long DecimalLiteralToLong(string hex) {
+            long value = 0;
+            if (long.TryParse(hex, out value)) {
+                return value;
+            }
+            else {
+                throw new ArgumentException("hex");
+            }
         }
 
         /// <summary>

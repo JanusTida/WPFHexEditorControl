@@ -316,6 +316,20 @@ namespace WPFHexaEditor.Core.Bytes
             return null;
         }
 
+        /// <summary>
+        /// This is your primitive method of reading,I take it back to save time.
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public int Read(byte[] destination, int offset, int count) {
+            if (IsOpen)
+                if (_stream.CanRead)
+                    return _stream.Read(destination, offset, count);
+            return -1;
+        }
+
         #region SubmitChanges to file/stream
 
         /// <summary>

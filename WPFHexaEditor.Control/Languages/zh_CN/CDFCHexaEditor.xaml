@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Offset">偏移</sys:String>
+    <sys:String x:Key="ByteValue">二进制数值</sys:String>
+    <sys:String x:Key="HexValue">十六进制数值</sys:String>
+    <sys:String x:Key="FilePositionInByte">文件位置(字节)</sys:String>
+</ResourceDictionary>
