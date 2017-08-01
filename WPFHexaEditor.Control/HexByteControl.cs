@@ -71,7 +71,7 @@ namespace WPFHexaEditor.Control {
     /// </summary>
     [TemplatePart(Name = FirstHexCharName, Type = typeof(TextBlock))]
     [TemplatePart(Name = SecondHexCharName, Type = typeof(TextBlock))]
-    public partial class HexByteControl : System.Windows.Controls.Control {
+    public partial class HexByteControl : System.Windows.Controls.Control, IByteControl {
         public const string FirstHexCharName = "FirstHexChar";
         public const string SecondHexCharName = "SecondHexChar";
 
@@ -98,7 +98,6 @@ namespace WPFHexaEditor.Control {
 
         public event EventHandler ByteModified;
         public event EventHandler MouseSelection;
-        public event EventHandler Click;
         public event EventHandler RightClick;
         public event EventHandler MoveNext;
         public event EventHandler MovePrevious;
@@ -352,13 +351,8 @@ namespace WPFHexaEditor.Control {
         }
 
         private void HexChar_MouseDown(object sender, MouseButtonEventArgs e) {
-            if (e.LeftButton == MouseButtonState.Pressed) {
-                Focus();
-                Click?.Invoke(this, e);
-            }
-
             if (e.RightButton == MouseButtonState.Pressed) {
-                Click?.Invoke(this, e);
+                //Click?.Invoke(this, e);
                 RightClick?.Invoke(this, e);
             }
         }

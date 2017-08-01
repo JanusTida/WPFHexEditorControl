@@ -58,8 +58,10 @@
     <Compile Include="Core\CharacterTable\TBLStream.cs" />
     <Compile Include="Core\Converters\BoolInverterConverter.cs" />
     <Compile Include="Core\Helper\DispatcherHelper.cs" />
+    <Compile Include="Core\MethodExtention\VisualHelper.cs" />
     <Compile Include="HexByteControl.cs" />
     <Compile Include="StringByteControl.cs" />
+    <Compile Include="IByteControl.cs" />
     <Page Include="Languages\zh_CN\CDFCHexaEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -9,12 +9,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:WPFHexaEditor.Control"
-             MouseWheel="UserControl_MouseWheel"
+             MouseWheel="UserControl_MouseWheel" TextBlock.MouseDown="UserControl_MouseDown"
              mc:Ignorable="d"
              BorderBrush="#FF443E3E"
              BorderThickness="1"
              Height="350" Width="800">
-
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -38,11 +38,10 @@ namespace WPFHexaEditor.Control {
         #endregion
     }
 
-    internal partial class StringByteControl : TextBlock {
+    internal partial class StringByteControl : TextBlock, IByteControl {
         private bool _readOnlyMode;
         private TBLStream _TBLCharacterTable = null;
-
-        public event EventHandler Click;
+        
         public event EventHandler RightClick;
         public event EventHandler MouseSelection;
         public event EventHandler StringByteModified;
@@ -384,7 +383,11 @@ namespace WPFHexaEditor.Control {
         //    /// Update Background,foreground and font property
         //    /// </summary>
         internal void UpdateVisual() {
-            if (IsSelected) {
+            if (IsFocus) {
+                Foreground = Brushes.White;
+                Background = Brushes.Black;
+            }
+            else if (IsSelected) {
                 FontWeight = NormalFontWeight;
                 Foreground = Brushes.White;
 
@@ -577,12 +580,6 @@ namespace WPFHexaEditor.Control {
         }
 
         private void StringByteLabel_MouseDown(object sender, MouseButtonEventArgs e) {
-            if (e.LeftButton == MouseButtonState.Pressed) {
-                Focus();
-
-                Click?.Invoke(this, e);
-            }
-
             if (e.RightButton == MouseButtonState.Pressed) {
                 RightClick?.Invoke(this, e);
             }
