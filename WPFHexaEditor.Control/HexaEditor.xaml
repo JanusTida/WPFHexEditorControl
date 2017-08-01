@@ -270,6 +270,6 @@
         <!--TODO: ADD VISIBILITY CONVERTER-->
         <Label x:Name="ReadOnlyLabel" Content="ReadOnly" FontWeight="Bold" Grid.ColumnSpan="2" Grid.Column="2"
                Visibility="Collapsed"
-               Margin="0,1,5,1" Grid.Row="2" HorizontalAlignment="Right" Width="64" Grid.RowSpan="2" />
+               Margin="0,1,40,1" Grid.Row="2" HorizontalAlignment="Right" Width="64" Grid.RowSpan="2" />
     </Grid>
 </UserControl>

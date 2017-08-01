@@ -486,7 +486,7 @@ namespace WPFHexaEditor.Control
 
             if (e.NewValue != e.OldValue)
             {
-                ctrl.RefreshView(false);
+                ctrl.RefreshView(true);
 
                 //TODO: ADD VISIBILITY CONVERTER FOR BINDING READONLY PROPERTY
                 if (ctrl.ReadOnlyMode)
