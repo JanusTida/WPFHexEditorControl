@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using WPFHexaEditor.Control.Interface;
 using WPFHexaEditor.Core;
 using WPFHexaEditor.Core.Bytes;
 using WPFHexaEditor.Core.CharacterTable;
@@ -39,7 +41,6 @@ namespace WPFHexaEditor.Control {
     }
 
     internal partial class StringByteControl : TextBlock, IByteControl {
-        private bool _readOnlyMode;
         private TBLStream _TBLCharacterTable = null;
         
         public event EventHandler RightClick;
@@ -67,8 +68,7 @@ namespace WPFHexaEditor.Control {
             
             Width = 12;
             Height = 22;
-
-
+            
             Focusable = true;
             DataContext = this;
             TextAlignment = TextAlignment.Center;
@@ -82,7 +82,6 @@ namespace WPFHexaEditor.Control {
             MouseEnter += UserControl_MouseEnter;
             MouseLeave += UserControl_MouseLeave;
             KeyDown += UserControl_KeyDown;
-            MouseDown += StringByteLabel_MouseDown;
         }
 
         #region DependencyProperty
@@ -100,13 +99,7 @@ namespace WPFHexaEditor.Control {
         /// <summary>
         /// Used for selection coloring
         /// </summary>
-        public bool StringByteFirstSelected {
-            get { return (bool)GetValue(StringByteFirstSelectedProperty); }
-            set { SetValue(StringByteFirstSelectedProperty, value); }
-        }
-
-        public static readonly DependencyProperty StringByteFirstSelectedProperty =
-            DependencyProperty.Register("StringByteFirstSelected", typeof(bool), typeof(StringByteControl), new PropertyMetadata(true));
+        public bool FirstSelected { get; set; }
 
         /// <summary>
         /// Byte used for this instance
@@ -127,10 +120,7 @@ namespace WPFHexaEditor.Control {
                 if (ctrl.Action != ByteAction.Nothing && ctrl.InternalChange == false) {
                     //ctrl.StringByteModified?.Invoke(ctrl, new EventArgs());
                 }
-
                 ctrl.UpdateLabelFromByte();
-                ctrl.UpdateHexString();
-
                 ctrl.UpdateVisual();
 
             }
@@ -189,13 +179,20 @@ namespace WPFHexaEditor.Control {
         /// Get the hex string {00} representation of this byte
         /// </summary>
         public string HexString {
-            get { return (string)GetValue(HexStringProperty); }
-            internal set { SetValue(HexStringProperty, value); }
+            get {
+                if (Byte != null) {
+                    var chArr = ByteConverters.ByteToHexCharArray(Byte.Value);
+                    return new string(chArr);
+                }
+                else {
+                    return string.Empty;
+                }
+            }
         }
 
-        public static readonly DependencyProperty HexStringProperty =
-            DependencyProperty.Register("HexString", typeof(string), typeof(StringByteControl),
-                new FrameworkPropertyMetadata(string.Empty));
+        //public static readonly DependencyProperty HexStringProperty =
+        //    DependencyProperty.Register("HexString", typeof(string), typeof(StringByteControl),
+        //        new FrameworkPropertyMetadata(string.Empty));
 
         /// <summary>
         /// Get of Set if control as marked as highlighted
@@ -319,7 +316,6 @@ namespace WPFHexaEditor.Control {
             var ctrl = d as StringByteControl;
 
             ctrl.UpdateLabelFromByte();
-            ctrl.UpdateHexString();
         }
 
         public TBLStream TBLCharacterTable {
@@ -330,53 +326,65 @@ namespace WPFHexaEditor.Control {
                 _TBLCharacterTable = value;
             }
         }
+
         #endregion Characters tables
 
+        //storage the action level one by one.
+        private long priLevel = 0;
+        //I have noticed that this method cost most of time when refreshing.
         /// <summary>
         /// Update control label from byte property
         /// </summary>
         private void UpdateLabelFromByte() {
             if (Byte != null) {
-                switch (TypeOfCharacterTable) {
-                    case CharacterTableType.ASCII:
-                        Text = ByteConverters.ByteToChar(Byte.Value).ToString();
-                        Width = 12;
+                var curLevel = ++priLevel;
+                var bt = Byte.Value;
+                var chTable = TypeOfCharacterTable;
+
+                ThreadPool.QueueUserWorkItem(cb => {
+                    switch (chTable) {
+                        case CharacterTableType.ASCII:
+                        //Text = ByteConverters.ByteToChar(bt).ToString();
+                            var ch = ByteConverters.ByteToChar(bt).ToString();
+                            //Check whether the action has been out of "time".to aviod unnessarsery refreshing.
+                            if (curLevel == priLevel) {
+                                this.Dispatcher.Invoke(() => {
+                                    Text = ch;
+                                });
+                            }
+                        
                         break;
-                    case CharacterTableType.TBLFile:
-                        ReadOnlyMode = true;
+                        case CharacterTableType.TBLFile:
+                            ReadOnlyMode = true;
 
-                        if (_TBLCharacterTable != null) {
-                            string content = "#";
-                            string MTE = (ByteConverters.ByteToHex(Byte.Value) + ByteConverters.ByteToHex(ByteNext??0)).ToUpper();
-                            content = _TBLCharacterTable.FindTBLMatch(MTE, true);
+                            if (_TBLCharacterTable != null) {
+                                string content = "#";
+                                string MTE = (ByteConverters.ByteToHex2(Byte.Value) + ByteConverters.ByteToHex(ByteNext??0)).ToUpper();
+                                content = _TBLCharacterTable.FindTBLMatch(MTE, true);
 
-                            if (content == "#")
-                                content = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
+                                if (content == "#")
+                                    content = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
 
-                            Text = content;
+                                if(curLevel == priLevel) {
+                                    Text = content;
 
-                            //Adjuste wight
-                            if (content.Length == 1)
-                                Width = 12;
-                            else if (content.Length == 2)
-                                Width = 12 + content.Length * 2D;
-                            else if (content.Length > 2)
-                                Width = 12 + content.Length * 3.8D;
-                        }
-                        else
-                            goto case CharacterTableType.ASCII;
-                        break;
-                }
+                                    //Adjuste wight
+                                    if (content.Length == 1)
+                                        Width = 12;
+                                    else if (content.Length == 2)
+                                        Width = 12 + content.Length * 2D;
+                                    else if (content.Length > 2)
+                                        Width = 12 + content.Length * 3.8D;
+                                }
+                            }
+                            else
+                                goto case CharacterTableType.ASCII;
+                            break;
+                    }
+                });
             }
             else
-                Text = "";
-        }
-
-        private void UpdateHexString() {
-            if (Byte != null)
-                HexString = ByteConverters.ByteToHex(Byte.Value);
-            else
-                HexString = string.Empty;
+                Text = string.Empty;
         }
         
         /// <summary>
@@ -391,7 +399,7 @@ namespace WPFHexaEditor.Control {
                 FontWeight = NormalFontWeight;
                 Foreground = Brushes.White;
 
-                if (StringByteFirstSelected)
+                if (FirstSelected)
                     Background = FirstColor;
                 else
                     Background = SecondColor;
@@ -447,14 +455,7 @@ namespace WPFHexaEditor.Control {
             }
         }
 
-        public bool ReadOnlyMode {
-            get {
-                return _readOnlyMode;
-            }
-            set {
-                _readOnlyMode = value;
-            }
-        }
+        public bool ReadOnlyMode { get; set; }
 
         private void UserControl_KeyDown(object sender, KeyEventArgs e) {
             if (KeyValidator.IsIgnoredKey(e.Key)) {

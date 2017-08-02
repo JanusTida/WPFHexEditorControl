@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WPFHexaEditor.Control.Interface;
 using WPFHexaEditor.Core;
 using WPFHexaEditor.Core.Bytes;
 
@@ -88,17 +90,15 @@ namespace WPFHexaEditor.Control {
         public HexByteControl() {
             DataContext = this;
             KeyDown += UserControl_KeyDown;
-            MouseDown += HexChar_MouseDown;
             MouseEnter += UserControl_MouseEnter;
             MouseLeave += UserControl_MouseLeave;
             Focusable = true;
         }
-        private bool _readOnlyMode = false;
+        
         private KeyDownLabel _keyDownLabel = KeyDownLabel.FirstChar;
 
         public event EventHandler ByteModified;
         public event EventHandler MouseSelection;
-        public event EventHandler RightClick;
         public event EventHandler MoveNext;
         public event EventHandler MovePrevious;
         public event EventHandler MoveRight;
@@ -157,13 +157,7 @@ namespace WPFHexaEditor.Control {
         /// <summary>
         /// Used for selection coloring
         /// </summary>
-        public bool HexByteFirstSelected {
-            get { return (bool)GetValue(HexByteFirstSelectedProperty); }
-            set { SetValue(HexByteFirstSelectedProperty, value); }
-        }
-
-        public static readonly DependencyProperty HexByteFirstSelectedProperty =
-            DependencyProperty.Register("HexByteFirstSelected", typeof(bool), typeof(HexByteControl), new PropertyMetadata(true));
+        public bool FirstSelected {get ; set;}
 
         /// <summary>
         /// Byte used for this instance
@@ -186,7 +180,6 @@ namespace WPFHexaEditor.Control {
                 }
 
                 ctrl.UpdateLabelFromByte();
-                ctrl.UpdateHexString();
             }
         }
 
@@ -204,26 +197,22 @@ namespace WPFHexaEditor.Control {
 
         #endregion
 
-        public bool ReadOnlyMode {
-            get {
-                return _readOnlyMode;
-            }
-            set {
-                _readOnlyMode = value;
-            }
-        }
+        public bool ReadOnlyMode { get; set; }
 
         /// <summary>
         /// Get the hex string representation of this byte
         /// </summary>
         public string HexString {
-            get { return (string)GetValue(HexStringProperty); }
-            internal set { SetValue(HexStringProperty, value); }
+            get {
+                if (Byte != null) {
+                    var chArr = ByteConverters.ByteToHexCharArray(Byte.Value);
+                    return new string(chArr);
+                }
+                else {
+                    return string.Empty;
+                }
+            }
         }
-
-        public static readonly DependencyProperty HexStringProperty =
-            DependencyProperty.Register("HexString", typeof(string), typeof(HexByteControl),
-                new FrameworkPropertyMetadata(string.Empty));
 
         /// <summary>
         /// Get or Set if control as selected
@@ -237,8 +226,7 @@ namespace WPFHexaEditor.Control {
             DependencyProperty.Register("IsSelected", typeof(bool), typeof(HexByteControl),
                 new FrameworkPropertyMetadata(false,
                     new PropertyChangedCallback(IsSelected_PropertyChange)));
-
-
+        
         private static void IsSelected_PropertyChange(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             HexByteControl ctrl = d as HexByteControl;
 
@@ -301,7 +289,7 @@ namespace WPFHexaEditor.Control {
                 FirstHexChar.Foreground = Brushes.White;
                 SecondHexChar.Foreground = Brushes.White;
 
-                if (HexByteFirstSelected)
+                if (FirstSelected)
                     Background = FirstColor;
                 else
                     Background = SecondColor;
@@ -337,26 +325,28 @@ namespace WPFHexaEditor.Control {
             }
         }
 
+
+        long priLevel = 0;
         private void UpdateLabelFromByte() {
             if (Byte != null) {
-                var hexabyte = ByteConverters.ByteToHexCharArray(Byte.Value);
-
-                FirstHexChar.Text = hexabyte[0].ToString();
-                SecondHexChar.Text = hexabyte[1].ToString();
+                var bt = Byte.Value;
+                ThreadPool.QueueUserWorkItem(cb => {
+                    var curLevel = ++priLevel;
+                    var hexabyte = ByteConverters.ByteToHexCharArray(bt);
+                    if (priLevel == curLevel) {
+                        this.Dispatcher.Invoke(() => {
+                            FirstHexChar.Text = hexabyte[0].ToString();
+                            SecondHexChar.Text = hexabyte[1].ToString();
+                        });
+                    }
+                });
             }
             else {
                 FirstHexChar.Text = string.Empty;
                 SecondHexChar.Text = string.Empty;
             }
         }
-
-        private void HexChar_MouseDown(object sender, MouseButtonEventArgs e) {
-            if (e.RightButton == MouseButtonState.Pressed) {
-                //Click?.Invoke(this, e);
-                RightClick?.Invoke(this, e);
-            }
-        }
-
+        
         private void UserControl_KeyDown(object sender, KeyEventArgs e) {
             if (KeyValidator.IsUpKey(e.Key)) {
                 e.Handled = true;
@@ -449,10 +439,10 @@ namespace WPFHexaEditor.Control {
         private void UpdateHexString() {
             if (Byte != null) {
                 var chArr = ByteConverters.ByteToHexCharArray(Byte.Value);
-                HexString = new string(chArr);
+                //HexString = new string(chArr);
             }
             else {
-                HexString = string.Empty;
+                //HexString = string.Empty;
             }
         }
 

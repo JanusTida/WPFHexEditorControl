@@ -18,5 +18,6 @@ namespace WPFHexaEditor.Control.Interface {
         string HexString { get; }
         bool IsHighLight { get; set; }
         bool IsSelected { get; set; }
+        bool FirstSelected { get; set; }
     }
 }
