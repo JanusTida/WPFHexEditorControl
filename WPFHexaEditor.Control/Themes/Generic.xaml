@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:WPFHexaEditor.Control">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/WPFHexaEditor;component/Languages/zh_CN/CDFCHexaEditor.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/WPFHexaEditor;component/Languages/en_US/CDFCHexaEditor.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <Style TargetType="{x:Type local:HexByteControl}">
         <Setter Property="Width" Value="32"/>
@@ -25,7 +25,7 @@
                                         <Label Content="{StaticResource HexValue}"
                        FontWeight="Bold"
                        Width="120"/>
-                                        <Label Content="{TemplateBinding HexString}"/>
+                                        <Label Content="{Binding Path=HexString,Mode=OneWay}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="{StaticResource FilePositionInByte}"

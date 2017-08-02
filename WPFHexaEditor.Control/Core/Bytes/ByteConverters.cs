@@ -64,12 +64,10 @@ namespace WPFHexaEditor.Core.Bytes
 
 
         /// <summary>
-        /// Convert a byte to a hex char arrary,This method may not be called multitimes in a moment.
-        /// cuz the hexbyteArray is static.
+        /// Convert a byte to char[2].
         /// </summary>
         /// <param name="b"></param>
         /// <returns></returns>
-        private static readonly char[] hexbyteArray = new char[2];
         public static char[] ByteToHexCharArray(byte b) {
             var hexbyteArray = new char[2];
             hexbyteArray[0] = ByteToHexChar(b >> 4);

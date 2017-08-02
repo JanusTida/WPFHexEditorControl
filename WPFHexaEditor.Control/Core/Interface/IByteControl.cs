@@ -19,5 +19,6 @@ namespace WPFHexaEditor.Control.Interface {
         bool IsHighLight { get; set; }
         bool IsSelected { get; set; }
         bool FirstSelected { get; set; }
+        bool ReadOnlyMode { get; set; }
     }
 }

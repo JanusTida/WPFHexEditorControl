@@ -61,7 +61,11 @@
     <Compile Include="Core\MethodExtention\VisualHelper.cs" />
     <Compile Include="HexByteControl.cs" />
     <Compile Include="StringByteControl.cs" />
-    <Compile Include="IByteControl.cs" />
+    <Compile Include="Core\Interface\IByteControl.cs" />
+    <Page Include="Languages\en_US\CDFCHexaEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Languages\zh_CN\CDFCHexaEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -165,9 +169,7 @@
   <ItemGroup>
     <Resource Include="Resources\Icon\Find-Icon.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Languages\en_US\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

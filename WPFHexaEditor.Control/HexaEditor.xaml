@@ -137,7 +137,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
+        <Grid  Grid.ColumnSpan="3" Grid.Row="1" x:Name="SectorLineContainer"/>
         <StackPanel x:Name="LinesInfoStackPanel"
                     HorizontalAlignment="Left"
                     Grid.Row="1"
