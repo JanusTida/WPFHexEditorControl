@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WPFHexaEditor.Core;
 
-namespace WPFHexaEditor.Control {
+namespace WPFHexaEditor.Control.Interface {
     /// <summary>
     /// The interface is to reduce the code,
     /// which the HexByteControl and stringbytecontrol inherit from.
@@ -16,7 +16,7 @@ namespace WPFHexaEditor.Control {
         byte? Byte { get; set; }
         bool IsFocus { get; set; }
         string HexString { get; }
-        bool IsHighLight { get; }
-        bool IsSelected { get; }
+        bool IsHighLight { get; set; }
+        bool IsSelected { get; set; }
     }
 }
