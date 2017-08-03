@@ -9,7 +9,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:WPFHexaEditor.Control"
-             TextBlock.PreviewMouseDown="TextBlock_PreviewMouseDown"
              MouseWheel="UserControl_MouseWheel" 
              mc:Ignorable="d"
              BorderBrush="#FF443E3E"

@@ -604,47 +604,7 @@ namespace WPFHexaEditor.Control
             SelectionStart = ByteConverters.HexLiteralToLong(line.Text);
             SelectionStop = SelectionStart + BytePerLine - 1;
         }
-
-        private void Control_MovePageDown(object sender, EventArgs e)
-        {
-            HexByteControl hbCtrl = sender as HexByteControl;
-            StringByteControl sbCtrl = sender as StringByteControl;
-
-            long byteToMove = (BytePerLine * GetMaxVisibleLine());
-            long test = SelectionStart + byteToMove;
-
-            //TODO : Validation
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
-            {
-                if (test < _provider.Length)
-                    SelectionStart += byteToMove;
-                else
-                    SelectionStart = _provider.Length;
-            }
-            else
-            {
-                if (SelectionStart > SelectionStop)
-                    SelectionStart = SelectionStop;
-                else
-                    SelectionStop = SelectionStart;
-
-                if (test < _provider.Length)
-                {
-                    SelectionStart += byteToMove;
-                    SelectionStop += byteToMove;
-                }
-            }
-
-            if (SelectionStart > GetLastVisibleBytePosition())
-                VerticalScrollBar.Value++;
-
-            if (hbCtrl != null || sbCtrl != null)
-            {
-                VerticalScrollBar.Value += GetMaxVisibleLine() - 1;
-                SetFocusHexDataPanel(SelectionStart);
-            }
-        }
-
+        
         private void Control_ByteDeleted(object sender, EventArgs e)
         {
             HexByteControl ctrl = sender as HexByteControl;
@@ -681,9 +641,6 @@ namespace WPFHexaEditor.Control
 
         private void Control_MovePageUp(object sender, EventArgs e)
         {
-            HexByteControl hbCtrl = sender as HexByteControl;
-            StringByteControl sbCtrl = sender as StringByteControl;
-
             long byteToMove = (BytePerLine * GetMaxVisibleLine());
             long test = SelectionStart - byteToMove;
 
@@ -712,38 +669,62 @@ namespace WPFHexaEditor.Control
             if (SelectionStart < GetFirstVisibleBytePosition())
                 VerticalScrollBar.Value--;
 
-            if (hbCtrl != null || sbCtrl != null)
-            {
+            if (sender is HexByteControl || sender is StringByteControl) { 
                 VerticalScrollBar.Value -= GetMaxVisibleLine() - 1;
                 SetFocusHexDataPanel(SelectionStart);
             }
         }
 
-        private void Control_MoveDown(object sender, EventArgs e)
-        {
-            HexByteControl hbCtrl = sender as HexByteControl;
-            StringByteControl sbCtrl = sender as StringByteControl;
-
-            long test = SelectionStart + BytePerLine;
-                        
+        private void Control_MovePageDown(object sender, EventArgs e) {
+            long byteToMove = (BytePerLine * GetMaxVisibleLine());
+            long test = SelectionStart + byteToMove;
 
             //TODO : Validation
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
-            {
+            if (Keyboard.Modifiers == ModifierKeys.Shift) {
                 if (test < _provider.Length)
-                    SelectionStart += BytePerLine;
+                    SelectionStart += byteToMove;
                 else
                     SelectionStart = _provider.Length;
             }
-            else
-            {
+            else {
                 if (SelectionStart > SelectionStop)
                     SelectionStart = SelectionStop;
                 else
                     SelectionStop = SelectionStart;
 
+                if (test < _provider.Length) {
+                    SelectionStart += byteToMove;
+                    SelectionStop += byteToMove;
+                }
+            }
+
+            if (SelectionStart > GetLastVisibleBytePosition())
+                VerticalScrollBar.Value++;
+
+            if (sender is HexByteControl || sender is StringByteControl) {
+                VerticalScrollBar.Value += GetMaxVisibleLine() - 1;
+                SetFocusHexDataPanel(SelectionStart);
+            }
+        }
+
+        private void Control_MoveDown(object sender, EventArgs e) {
+            long test = SelectionStart + BytePerLine;
+
+
+            //TODO : Validation
+            if (Keyboard.Modifiers == ModifierKeys.Shift) {
                 if (test < _provider.Length)
-                {
+                    SelectionStart += BytePerLine;
+                else
+                    SelectionStart = _provider.Length;
+            }
+            else {
+                if (SelectionStart > SelectionStop)
+                    SelectionStart = SelectionStop;
+                else
+                    SelectionStop = SelectionStart;
+
+                if (test < _provider.Length) {
                     SelectionStart += BytePerLine;
                     SelectionStop += BytePerLine;
                 }
@@ -755,37 +736,30 @@ namespace WPFHexaEditor.Control
             if (SelectionStart > GetLastVisibleBytePosition())
                 VerticalScrollBar.Value++;
 
-            if (hbCtrl != null)
+            if (sender is HexByteControl)
                 SetFocusHexDataPanel(SelectionStart);
 
-            if (sbCtrl != null)
+            if (sender is StringByteControl)
                 SetFocusStringDataPanel(SelectionStart);
         }
 
-        private void Control_MoveUp(object sender, EventArgs e)
-        {
-            HexByteControl hbCtrl = sender as HexByteControl;
-            StringByteControl sbCtrl = sender as StringByteControl;
-
+        private void Control_MoveUp(object sender, EventArgs e) {
             long test = SelectionStart - BytePerLine;
 
             //TODO : Validation
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
-            {
+            if (Keyboard.Modifiers == ModifierKeys.Shift) {
                 if (test > -1)
                     SelectionStart -= BytePerLine;
                 else
                     SelectionStart = 0;
             }
-            else
-            {
+            else {
                 if (SelectionStart > SelectionStop)
                     SelectionStart = SelectionStop;
                 else
                     SelectionStop = SelectionStart;
 
-                if (test > -1)
-                {
+                if (test > -1) {
                     SelectionStart -= BytePerLine;
                     SelectionStop -= BytePerLine;
                 }
@@ -794,36 +768,57 @@ namespace WPFHexaEditor.Control
             if (SelectionStart < GetFirstVisibleBytePosition())
                 VerticalScrollBar.Value--;
 
-            if (hbCtrl != null)
+            if (sender is HexByteControl)
                 SetFocusHexDataPanel(SelectionStart);
 
-            if (sbCtrl != null)
+            else if (sender is StringByteControl)
                 SetFocusStringDataPanel(SelectionStart);
         }
 
-       
-        private void Control_MouseSelection(object sender, EventArgs e)
-        {
+        private void Control_Click(object sender, EventArgs e) {
+            IByteControl ctrl = sender as IByteControl;
+
+            if (ctrl != null) {
+                if (Keyboard.Modifiers == ModifierKeys.Shift) {
+                    SelectionStop = ctrl.BytePositionInFile;
+                }
+                else {
+                    SelectionStart = ctrl.BytePositionInFile;
+                    SelectionStop = ctrl.BytePositionInFile;
+                }
+
+            }
+            if (ctrl is StringByteControl) {
+                UpdateSelectionColorMode(FirstColor.StringByteData);
+            }
+            else {
+                UpdateSelectionColorMode(FirstColor.HexByteData);
+            }
+
+        }
+
+        private void Control_MouseSelection(object sender, EventArgs e) {
             //Prevent false mouse selection on file open
             if (SelectionStart == -1)
                 return;
 
-            var ctrl = sender as IByteControl;
+            var bCtrl = sender as IByteControl;
             IInputElement focusedControl = Keyboard.FocusedElement;
-            if (ctrl != null)
-            {
+            if (bCtrl != null) {
                 //Update coloring selection
-                if (focusedControl is HexByteControl)
-                    UpdateSelectionColorMode(FirstColor.HexByteData);
-                else
-                    UpdateSelectionColorMode(FirstColor.StringByteData);
-
+                var test = focusedControl as IByteControl;
                 //update selection
-                if (ctrl.BytePositionInFile != -1)
-                    SelectionStop = ctrl.BytePositionInFile;
+                if (bCtrl.BytePositionInFile != -1)
+                    SelectionStop = bCtrl.BytePositionInFile;
                 else
                     SelectionStop = GetLastVisibleBytePosition();
             }
+
+            if (focusedControl is HexByteControl)
+                UpdateSelectionColorMode(FirstColor.HexByteData);
+            else
+                UpdateSelectionColorMode(FirstColor.StringByteData);
+
             UpdateSelection();
         }
 
@@ -1993,6 +1988,8 @@ namespace WPFHexaEditor.Control
                     sbCtrl.MoveNext += Control_MoveNext;
                     sbCtrl.MovePrevious += Control_MovePrevious;
                     sbCtrl.MouseSelection += Control_MouseSelection;
+                    sbCtrl.Click += Control_Click;
+                    sbCtrl.RightClick += Control_RightClick;
                     sbCtrl.MoveUp += Control_MoveUp;
                     sbCtrl.MoveDown += Control_MoveDown;
                     sbCtrl.MoveLeft += Control_MoveLeft;
@@ -2025,6 +2022,8 @@ namespace WPFHexaEditor.Control
 
                     byteControl.ReadOnlyMode = ReadOnlyMode;
                     byteControl.MouseSelection += Control_MouseSelection;
+                    byteControl.Click += Control_Click;
+                    byteControl.RightClick += Control_RightClick;
                     byteControl.MoveNext += Control_MoveNext;
                     byteControl.MovePrevious += Control_MovePrevious;
                     //byteControl.ByteModified += Control_ByteModified;
@@ -2393,14 +2392,18 @@ namespace WPFHexaEditor.Control
             {
                 if (bytePositionInFile >= _provider.Length)
                     return;
-                var find = false;
+                var rtn = false;
                 TraverseDataControls(ctrl => {
-                    if(!find && ctrl.BytePositionInFile == bytePositionInFile) {
-                        find = true;
+                    if(!rtn && ctrl.BytePositionInFile == bytePositionInFile) {
+                        rtn = true;
                         ctrl.Focus();
                     }
                 });
-                
+
+                if (rtn) {
+                    return;
+                }
+
                 if (VerticalScrollBar.Value < VerticalScrollBar.Maximum)
                     VerticalScrollBar.Value++;
 
@@ -2905,7 +2908,48 @@ namespace WPFHexaEditor.Control
         // Using a DependencyProperty as the backing store for isAllowContextMenu.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty isAllowContextMenuProperty =
             DependencyProperty.Register("isAllowContextMenu", typeof(bool), typeof(HexaEditor), new PropertyMetadata(true));
-        
+
+        private void Control_RightClick(object sender, EventArgs e) {
+            if (IsAllowContextMenu) {
+                //position
+                StringByteControl sbCtrl = sender as StringByteControl;
+                HexByteControl ctrl = sender as HexByteControl;
+
+                if (sbCtrl != null)
+                    _rightClickBytePosition = sbCtrl.BytePositionInFile;
+                else if (ctrl != null)
+                    _rightClickBytePosition = ctrl.BytePositionInFile;
+
+
+                if (SelectionLength <= 1) {
+                    SelectionStart = _rightClickBytePosition;
+                    SelectionStop = _rightClickBytePosition;
+                }
+
+                //update ctrl
+                CopyAsCMenu.IsEnabled = false;
+                CopyASCIICMenu.IsEnabled = false;
+                FindAllCMenu.IsEnabled = false;
+                CopyHexaCMenu.IsEnabled = false;
+                UndoCMenu.IsEnabled = false;
+                DeleteCMenu.IsEnabled = false;
+
+                if (SelectionLength > 0) {
+                    CopyASCIICMenu.IsEnabled = true;
+                    CopyAsCMenu.IsEnabled = true;
+                    FindAllCMenu.IsEnabled = true;
+                    CopyHexaCMenu.IsEnabled = true;
+                    DeleteCMenu.IsEnabled = true;
+                }
+
+                if (UndoCount > 0)
+                    UndoCMenu.IsEnabled = true;
+
+                //Show context menu
+                Focus();
+                CMenu.Visibility = Visibility.Visible;
+            }
+        }
 
         private void FindAllCMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -3025,85 +3069,6 @@ namespace WPFHexaEditor.Control
                     }
                 });
             }
-        }
-    }
-
-    /// <summary>
-    /// Some thing about dealing with click routedevent;
-    /// </summary>
-    public partial class HexaEditor {
-        /// <summary>
-        /// To handle the mousevent in control.
-        /// //The Click event handlers in "byteControls" are removed,
-        /// //RightClick event handlers will be the next to be removed.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TextBlock_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
-            var mouseArg = e as MouseButtonEventArgs;
-            var dpObject = e.OriginalSource as DependencyObject;
-            IByteControl ctrl = null;
-            if (mouseArg != null && dpObject != null) {
-                ctrl = dpObject.GetVisualParent<HexByteControl>() as IByteControl ??
-                    dpObject.GetVisualParent<StringByteControl>() as IByteControl;
-
-                if (ctrl != null) {
-                    //If right clicked.keep the selection state.
-                    //ready to replace RightClick
-                    if (mouseArg.RightButton == MouseButtonState.Pressed) {
-                        if (IsAllowContextMenu) {
-                            //position
-                            if (ctrl != null)
-                                _rightClickBytePosition = ctrl.BytePositionInFile;
-
-                            if (SelectionLength <= 1) {
-                                SelectionStart = _rightClickBytePosition;
-                                SelectionStop = _rightClickBytePosition;
-                            }
-
-                            //update ctrl
-                            CopyAsCMenu.IsEnabled = false;
-                            CopyASCIICMenu.IsEnabled = false;
-                            FindAllCMenu.IsEnabled = false;
-                            CopyHexaCMenu.IsEnabled = false;
-                            UndoCMenu.IsEnabled = false;
-                            DeleteCMenu.IsEnabled = false;
-
-                            if (SelectionLength > 0) {
-                                CopyASCIICMenu.IsEnabled = true;
-                                CopyAsCMenu.IsEnabled = true;
-                                FindAllCMenu.IsEnabled = true;
-                                CopyHexaCMenu.IsEnabled = true;
-                                DeleteCMenu.IsEnabled = true;
-                            }
-
-                            if (UndoCount > 0)
-                                UndoCMenu.IsEnabled = true;
-
-                            //Show context menu
-                            Focus();
-                            CMenu.Visibility = Visibility.Visible;
-                        }
-                    }
-                    else if (mouseArg.LeftButton == MouseButtonState.Pressed) {
-                        if (Keyboard.Modifiers == ModifierKeys.Shift) {
-                            SelectionStop = ctrl.BytePositionInFile;
-                        }
-                        else {
-                            SelectionStart = ctrl.BytePositionInFile;
-                            SelectionStop = ctrl.BytePositionInFile;
-                        }
-                        focusPosition = ctrl.BytePositionInFile;
-                        UpdateFocusState();
-                        UpdateSelectionColorMode(FirstColor.HexByteData);
-
-                        //The contextmenu should be shown,so prevent the event passing while only left clicked.
-                        e.Handled = true;
-                    }
-                }
-
-            }
-            
         }
     }
 

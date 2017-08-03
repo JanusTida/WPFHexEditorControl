@@ -90,8 +90,10 @@ namespace WPFHexaEditor.Control {
         public HexByteControl() {
             DataContext = this;
             KeyDown += UserControl_KeyDown;
+            MouseDown += HexChar_MouseDown;
             MouseEnter += UserControl_MouseEnter;
             MouseLeave += UserControl_MouseLeave;
+            
             Focusable = true;
         }
         
@@ -99,6 +101,8 @@ namespace WPFHexaEditor.Control {
 
         public event EventHandler ByteModified;
         public event EventHandler MouseSelection;
+        public event EventHandler Click;
+        public event EventHandler RightClick;
         public event EventHandler MoveNext;
         public event EventHandler MovePrevious;
         public event EventHandler MoveRight;
@@ -197,7 +201,7 @@ namespace WPFHexaEditor.Control {
 
         #endregion
 
-        public bool ReadOnlyMode { get; set; }
+        public bool ReadOnlyMode { get;set; }
 
         /// <summary>
         /// Get the hex string representation of this byte
@@ -346,7 +350,18 @@ namespace WPFHexaEditor.Control {
                 SecondHexChar.Text = string.Empty;
             }
         }
-        
+
+        private void HexChar_MouseDown(object sender, MouseButtonEventArgs e) {
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                Focus();
+                Click?.Invoke(this, e);
+            }
+
+            if (e.RightButton == MouseButtonState.Pressed) {
+                RightClick?.Invoke(this, e);
+            }
+        }
+
         private void UserControl_KeyDown(object sender, KeyEventArgs e) {
             if (KeyValidator.IsUpKey(e.Key)) {
                 e.Handled = true;

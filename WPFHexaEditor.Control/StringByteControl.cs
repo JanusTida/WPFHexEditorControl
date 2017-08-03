@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using WPFHexaEditor.Control.Interface;
@@ -42,7 +43,8 @@ namespace WPFHexaEditor.Control {
 
     internal partial class StringByteControl : TextBlock, IByteControl {
         private TBLStream _TBLCharacterTable = null;
-        
+
+        public event EventHandler Click;
         public event EventHandler RightClick;
         public event EventHandler MouseSelection;
         public event EventHandler StringByteModified;
@@ -82,6 +84,7 @@ namespace WPFHexaEditor.Control {
             MouseEnter += UserControl_MouseEnter;
             MouseLeave += UserControl_MouseLeave;
             KeyDown += UserControl_KeyDown;
+            MouseDown += StringByteLabel_MouseDown;
         }
 
         #region DependencyProperty
@@ -118,7 +121,7 @@ namespace WPFHexaEditor.Control {
 
             if (e.NewValue != e.OldValue) {
                 if (ctrl.Action != ByteAction.Nothing && ctrl.InternalChange == false) {
-                    //ctrl.StringByteModified?.Invoke(ctrl, new EventArgs());
+                    ctrl.StringByteModified?.Invoke(ctrl, new EventArgs());
                 }
                 ctrl.UpdateLabelFromByte();
                 ctrl.UpdateVisual();
@@ -340,11 +343,11 @@ namespace WPFHexaEditor.Control {
                 var curLevel = ++priLevel;
                 var bt = Byte.Value;
                 var chTable = TypeOfCharacterTable;
-
+                
                 ThreadPool.QueueUserWorkItem(cb => {
                     switch (chTable) {
                         case CharacterTableType.ASCII:
-                        //Text = ByteConverters.ByteToChar(bt).ToString();
+                            //Text = ByteConverters.ByteToChar(bt).ToString();
                             var ch = ByteConverters.ByteToChar(bt).ToString();
                             //Check whether the action has been out of "time".to aviod unnessarsery refreshing.
                             if (curLevel == priLevel) {
@@ -352,29 +355,30 @@ namespace WPFHexaEditor.Control {
                                     Text = ch;
                                 });
                             }
-                        
-                        break;
+
+                            break;
                         case CharacterTableType.TBLFile:
                             ReadOnlyMode = true;
 
                             if (_TBLCharacterTable != null) {
                                 string content = "#";
-                                string MTE = (ByteConverters.ByteToHex2(Byte.Value) + ByteConverters.ByteToHex(ByteNext??0)).ToUpper();
+                                string MTE = (ByteConverters.ByteToHex2(Byte.Value) + ByteConverters.ByteToHex(ByteNext ?? 0)).ToUpper();
                                 content = _TBLCharacterTable.FindTBLMatch(MTE, true);
 
                                 if (content == "#")
                                     content = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
 
-                                if(curLevel == priLevel) {
-                                    Text = content;
-
-                                    //Adjuste wight
-                                    if (content.Length == 1)
-                                        Width = 12;
-                                    else if (content.Length == 2)
-                                        Width = 12 + content.Length * 2D;
-                                    else if (content.Length > 2)
-                                        Width = 12 + content.Length * 3.8D;
+                                if (curLevel == priLevel) {
+                                    this.Dispatcher.Invoke(() => {
+                                        Text = content;
+                                        //Adjuste wight
+                                        if (content.Length == 1)
+                                            Width = 12;
+                                        else if (content.Length == 2)
+                                            Width = 12 + content.Length * 2D;
+                                        else if (content.Length > 2)
+                                            Width = 12 + content.Length * 3.8D;
+                                    });
                                 }
                             }
                             else
@@ -581,6 +585,12 @@ namespace WPFHexaEditor.Control {
         }
 
         private void StringByteLabel_MouseDown(object sender, MouseButtonEventArgs e) {
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                Focus();
+
+                Click?.Invoke(this, e);
+            }
+
             if (e.RightButton == MouseButtonState.Pressed) {
                 RightClick?.Invoke(this, e);
             }

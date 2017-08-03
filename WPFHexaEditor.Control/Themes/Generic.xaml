@@ -37,10 +37,12 @@
                             </ToolTip>
                         </Canvas.ToolTip>
                         <TextBlock x:Name="FirstHexChar" 
-                   HorizontalAlignment="Left"
-                   Padding="0"
-                   Width="16" TextAlignment="Right"
-                   Focusable="True"/>
+                       HorizontalAlignment="Left"
+                       Padding="0"
+                       Width="16" TextAlignment="Right"
+                       Focusable="True">
+                            
+                        </TextBlock>
                         <TextBlock x:Name="SecondHexChar" 
                    Padding="0" 
                    Margin="16,0,0,0" 
