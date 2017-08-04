@@ -8,7 +8,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WPFHexaEditorExample"
              DispatcherUnhandledException="Application_DispatcherUnhandledException"
-             StartupUri="MainWindow.xaml">
+             StartupUri="MainWindow2.xaml">
     <Application.Resources>
     </Application.Resources>
 </Application>

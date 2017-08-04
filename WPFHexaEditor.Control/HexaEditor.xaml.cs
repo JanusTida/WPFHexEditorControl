@@ -1850,8 +1850,6 @@ namespace WPFHexaEditor.Control
 
         private static object BytePerLine_CoerceValue(DependencyObject d, object baseValue)
         {
-            HexaEditor ctrl = d as HexaEditor;
-
             var value = (int)baseValue;
 
             if (value < 8)

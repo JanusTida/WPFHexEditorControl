@@ -37,7 +37,7 @@ namespace WPFHexaEditorExample
         private void OpenMenu_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
-
+            
             if (fileDialog.ShowDialog() != null)
             {
                 if (File.Exists(fileDialog.FileName))
