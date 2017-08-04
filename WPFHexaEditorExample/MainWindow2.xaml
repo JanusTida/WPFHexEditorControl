@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFHexaEditorExample"
         mc:Ignorable="d"
-        Title="MainWindow2" Height="300" Width="670">
+        Title="MainWindow2" Height="300" Width="408">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,9 +14,9 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="File">
-                <MenuItem Header="Open" x:Name="MenuItem_OpenFile" Click="MenuItem_OpenFile_Click"/>
+                <MenuItem Header="Open" x:Name="MenuItem_OpenFile" Command="{Binding OpenFileCommand}"/>
             </MenuItem>
         </Menu>
-        <hex:HexTextBlockEditor Position="{Binding Position}" Grid.Row="1" x:Name="hexTbl" />
+        <hex:HexTextBlockEditor Stream="{Binding Stream}" Position="{Binding Position}" Grid.Row="1" x:Name="hexTbl" />
     </Grid>
 </Window>

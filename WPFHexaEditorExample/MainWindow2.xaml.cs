@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,33 +14,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WPFHexaEditorExample.Abstracts;
+using WPFHexaEditorExample.Commands;
 
 namespace WPFHexaEditorExample {
     /// <summary>
     /// Interaction logic for MainWindow2.xaml
     /// </summary>
     public partial class MainWindow2 : Window {
+        private MainWindow2ViewModel vm;
         public MainWindow2() {
             InitializeComponent();
-            this.DataContext = new MainWindowViewModel();
-        }
-
-        private void MenuItem_OpenFile_Click(object sender, RoutedEventArgs e) {
-            hexTbl.Stream?.Close();
-
-            var dialog = new OpenFileDialog();
-            dialog.Multiselect = false;
-
-            if(dialog.ShowDialog() == true) {
-                var fs = dialog.OpenFile();
-                hexTbl.Stream = fs;
-            }
+            this.DataContext = vm = new MainWindow2ViewModel();
         }
     }
 
-    public class MainWindowViewModel:BindableBase {
-
-        private long _position = -1;
+    public class MainWindow2ViewModel : BindableBase {
+        private long _position;
         public long Position {
             get {
                 return _position;
@@ -49,5 +39,30 @@ namespace WPFHexaEditorExample {
             }
         }
 
+        private Stream _stream;
+        public Stream Stream {
+            get {
+                return _stream;
+            }
+            set {
+                SetProperty(ref _stream, value);
+            }
+        }
+
+        private RelayCommand _openFileCommand;
+        public RelayCommand OpenFileCommand =>
+            _openFileCommand ?? (_openFileCommand = new RelayCommand(
+                () => {
+                    Stream?.Close();
+
+                    var dialog = new OpenFileDialog();
+                    dialog.Multiselect = false;
+
+                    if (dialog.ShowDialog() == true) {
+                        var fs = dialog.OpenFile();
+                        Stream = fs;
+                    }
+                })
+            );
     }
 }
