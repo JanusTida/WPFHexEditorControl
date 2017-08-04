@@ -31,37 +31,11 @@ namespace HexTextBlock{
             };
             this.SizeChanged += (sender, e) => UpdateVerticalScrollBar();
         }
-
-        long scrollPriLevel = 0;
-        private object readLocker = new object();
+        
         private void VerticalScrollBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             var val = (long)e.NewValue;
-            var curLevel = ++scrollPriLevel;
-            var acHeight = txbHex.ActualHeight;
-            var stream = Stream;
-            
-            ThreadPool.QueueUserWorkItem(cb => {
-                return;
-                lock (readLocker) {
-                    if (curLevel != scrollPriLevel) {
-                        return;
-                    }
-                    var buffSize = (int)acHeight / 12 * BytePerLine;
-                    var buffer = new byte[buffSize];
-                    stream.Position = val * BytePerLine;
-                    var readLen = stream.Read(buffer, 0, buffSize);
-                    var sb = new StringBuilder();
-                    for (int i = 0; i < readLen; i++) {
-                        sb.Append(new string(ByteConverters.ByteToHexCharArray(buffer[i])) + " ");
-                    }
-                    if (curLevel == scrollPriLevel) {
-                        this.Dispatcher.Invoke(() => {
-                            txbHex.Text = sb.ToString();
-                        });
-                    }
-                }
-            });
-
+            //This Position_PropertyChanged will refresh automatically.
+            Position = val * BytePerLine;
         }
         
         /// <summary>
@@ -122,6 +96,7 @@ namespace HexTextBlock{
             if(stream != null) {
                 ctrl.UpdateVerticalScrollBar();
             }
+            ctrl.RefreshView();
         }
 
         /// <summary>
@@ -138,11 +113,15 @@ namespace HexTextBlock{
             }
         }
         public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(nameof(Position), typeof(long), typeof(HexTextBlockEditor),
-            new FrameworkPropertyMetadata(-1L,FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, Position_PropertyChanged));
+            new FrameworkPropertyMetadata(0L,FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, Position_PropertyChanged));
 
         private static void Position_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             var ctrl = d as HexTextBlockEditor;
             var position = (long)e.NewValue;
+            //Check whether position is valid;
+            if(position % ctrl.BytePerLine == 0) {
+                ctrl.RefreshView();
+            }
         }
         
         private void Close() {
@@ -150,8 +129,40 @@ namespace HexTextBlock{
             txbHex.Text = string.Empty;
         }
 
-        private void RefreshView(bool controlResize,bool refreshData = true) {
+        private void RefreshView(bool controlResize = false,bool refreshData = true) {
+            UpdateStringAndDataViewer();
+        }
 
+        long scrollPriLevel = 0;
+        private object readLocker = new object();
+        private void UpdateStringAndDataViewer() {
+            var curLevel = ++scrollPriLevel;
+            var acHeight = txbHex.ActualHeight;
+            var stream = Stream;
+            var bytePerLine = BytePerLine;
+            var pos = Position;
+
+            //Use threadpool to let the control scroll more "fluent".
+            ThreadPool.QueueUserWorkItem(cb => {
+                lock (readLocker) {
+                    if (curLevel != scrollPriLevel) {
+                        return;
+                    }
+                    var buffSize = (int)acHeight / 12 * bytePerLine;
+                    var buffer = new byte[buffSize];
+                    stream.Position = pos;
+                    var readLen = stream.Read(buffer, 0, buffSize);
+                    var sb = new StringBuilder();
+                    for (int i = 0; i < readLen; i++) {
+                        sb.Append(new string(ByteConverters.ByteToHexCharArray(buffer[i])) + " ");
+                    }
+                    if (curLevel == scrollPriLevel) {
+                        this.Dispatcher.Invoke(() => {
+                            txbHex.Text = sb.ToString();
+                        });
+                    }
+                }
+            });
         }
 
         private void UserControl_MouseWheel(object sender, MouseWheelEventArgs e) {
