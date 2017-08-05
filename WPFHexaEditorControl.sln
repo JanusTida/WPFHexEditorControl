@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Blend for Visual Studio 14
+# Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFHexaEditor", "WPFHexaEditor.Control\WPFHexaEditor.csproj", "{CF6AC02D-02FA-4EE9-A507-BD94F489972E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFHexaEditorExample", "WPFHexaEditorExample\WPFHexaEditorExample.csproj", "{001BD673-EF33-4FD2-AB7F-57F40FD54D53}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexTextBlock", "HexTextBlock\HexTextBlock.csproj", "{8CBCEBD4-4B45-46D5-B63E-54FF4F58058D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{001BD673-EF33-4FD2-AB7F-57F40FD54D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{001BD673-EF33-4FD2-AB7F-57F40FD54D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{001BD673-EF33-4FD2-AB7F-57F40FD54D53}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8CBCEBD4-4B45-46D5-B63E-54FF4F58058D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CBCEBD4-4B45-46D5-B63E-54FF4F58058D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CBCEBD4-4B45-46D5-B63E-54FF4F58058D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CBCEBD4-4B45-46D5-B63E-54FF4F58058D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -76,15 +76,8 @@
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="MainWindow2.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow2.xaml.cs">
-      <DependentUpon>MainWindow2.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -112,10 +105,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HexTextBlock\HexTextBlock.csproj">
-      <Project>{8cbcebd4-4b45-46d5-b63e-54ff4f58058d}</Project>
-      <Name>HexTextBlock</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WPFHexaEditor.Control\WPFHexaEditor.csproj">
       <Project>{CF6AC02D-02FA-4EE9-A507-BD94F489972E}</Project>
       <Name>WPFHexaEditor</Name>

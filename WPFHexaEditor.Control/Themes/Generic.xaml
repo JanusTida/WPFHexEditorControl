@@ -6,13 +6,14 @@
         <ResourceDictionary Source="pack://application:,,,/WPFHexaEditor;component/Languages/en_US/CDFCHexaEditor.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <Style TargetType="{x:Type local:HexByteControl}">
-        <Setter Property="Width" Value="32"/>
         <Setter Property="Height" Value="22"/>
+        <Setter Property="Width" Value="25"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:HexByteControl}">
-                    <Canvas Background="{TemplateBinding Background}" >
-                        <Canvas.ToolTip>
+                    <Border x:Name="BackgroundLayer" Background="{TemplateBinding Background}">
+                        <Border.ToolTip>
                             <ToolTip >
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
@@ -35,19 +36,8 @@
                                     </StackPanel>
                                 </StackPanel>
                             </ToolTip>
-                        </Canvas.ToolTip>
-                        <TextBlock x:Name="FirstHexChar" 
-                       HorizontalAlignment="Left"
-                       Padding="0"
-                       Width="16" TextAlignment="Right"
-                       Focusable="True">
-                            
-                        </TextBlock>
-                        <TextBlock x:Name="SecondHexChar" 
-                   Padding="0" 
-                   Margin="16,0,0,0" 
-                   Focusable="True"/>
-                    </Canvas>
+                        </Border.ToolTip>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -2133,7 +2134,27 @@ namespace WPFHexaEditor.Control
                     index++;
                 });
                 #endregion
-
+                var sbHex = new StringBuilder();
+                var sbString = new StringBuilder();
+                //Refresh HexTextdata;
+                //readSize + BytePerLine - 2 to get the count of all lines;
+                for (int i = 0; i < (readSize + BytePerLine - 2) / BytePerLine; i++) {
+                    var rowStart = i * BytePerLine;
+                    for (int j = 0; j < BytePerLine && rowStart + j < readSize; j++) {
+                        sbHex.Append(ByteConverters.ByteToHexCharArray(buffer[rowStart + j]));
+                        sbHex.Append("   ");
+                        switch (TypeOfCharacterTable) {
+                            case CharacterTableType.ASCII:
+                                sbString.Append(ByteConverters.ByteToChar(buffer[rowStart + j]));
+                                break;
+                        }
+                        
+                    }
+                    sbHex.Append("\n");
+                    sbString.Append("\n");
+                }
+                HexNormalLayer.Text = sbHex.ToString();
+                StringNormalLayer.Text = sbString.ToString();
             }
             else {
                 buffer = null;
