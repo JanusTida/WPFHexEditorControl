@@ -71,21 +71,16 @@ namespace WPFHexaEditor.Control {
     ///     <MyNamespace:HexByteControl2/>
     ///
     /// </summary>
-    [TemplatePart(Name = FirstHexCharName, Type = typeof(TextBlock))]
-    [TemplatePart(Name = SecondHexCharName, Type = typeof(TextBlock))]
+    [TemplatePart(Name = nameof(BackgroundLayer), Type = typeof(TextBlock))]
     public partial class HexByteControl : System.Windows.Controls.Control, IByteControl {
-        public const string FirstHexCharName = "FirstHexChar";
-        public const string SecondHexCharName = "SecondHexChar";
-
-        internal TextBlock FirstHexChar;
-        internal TextBlock SecondHexChar;
         static HexByteControl() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(HexByteControl), new FrameworkPropertyMetadata(typeof(HexByteControl)));
         }
+
+        private Border BackgroundLayer;
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            FirstHexChar = GetTemplateChild(FirstHexCharName) as TextBlock;
-            SecondHexChar = GetTemplateChild(SecondHexCharName) as TextBlock;
+            BackgroundLayer = (Border)this.GetTemplateChild(nameof(BackgroundLayer));
         }
         public HexByteControl() {
             DataContext = this;
@@ -284,14 +279,14 @@ namespace WPFHexaEditor.Control {
         /// </summary>
         internal void UpdateVisual() {
             if (IsFocus) {
-                FirstHexChar.Foreground = Brushes.White;
-                SecondHexChar.Foreground = Brushes.White;
+                //FirstHexChar.Foreground = Brushes.White;
+                //SecondHexChar.Foreground = Brushes.White;
                 Background = Brushes.Black;
             }
             else if (IsSelected) {
-                FontWeight = NormalFontWeight;
-                FirstHexChar.Foreground = Brushes.White;
-                SecondHexChar.Foreground = Brushes.White;
+                //FontWeight = NormalFontWeight;
+                //FirstHexChar.Foreground = Brushes.White;
+                //SecondHexChar.Foreground = Brushes.White;
 
                 if (FirstSelected)
                     Background = FirstColor;
@@ -299,39 +294,42 @@ namespace WPFHexaEditor.Control {
                     Background = SecondColor;
             }
             else if (IsHighLight) {
-                FontWeight = NormalFontWeight;
-                FirstHexChar.Foreground = Brushes.Black;
-                SecondHexChar.Foreground = Brushes.Black;
+                //FontWeight = NormalFontWeight;
+                //FirstHexChar.Foreground = Brushes.Black;
+                //SecondHexChar.Foreground = Brushes.Black;
 
                 Background = HighLightColor;
             }
             else if (Action != ByteAction.Nothing) {
                 switch (Action) {
                     case ByteAction.Modified:
-                        FontWeight = BoldFontWeight;
+                        //FontWeight = BoldFontWeight;
                         Background = ByteModifiedColor;
-                        FirstHexChar.Foreground = Brushes.Black;
-                        SecondHexChar.Foreground = Brushes.Black;
+                        //FirstHexChar.Foreground = Brushes.Black;
+                        //SecondHexChar.Foreground = Brushes.Black;
                         break;
                     case ByteAction.Deleted:
-                        FontWeight = BoldFontWeight;
+                        //FontWeight = BoldFontWeight;
                         Background = ByteDeletedColor;
-                        FirstHexChar.Foreground = Brushes.Black;
-                        SecondHexChar.Foreground = Brushes.Black;
+                        //FirstHexChar.Foreground = Brushes.Black;
+                        //SecondHexChar.Foreground = Brushes.Black;
                         break;
                 }
             }
             else {
-                FontWeight = NormalFontWeight;
+                //FontWeight = NormalFontWeight;
                 Background = Brushes.Transparent;
-                FirstHexChar.Foreground = Brushes.Black;
-                SecondHexChar.Foreground = Brushes.Black;
+                //FirstHexChar.Foreground = Brushes.Black;
+                //SecondHexChar.Foreground = Brushes.Black;
             }
         }
 
 
         long priLevel = 0;
         private void UpdateLabelFromByte() {
+            if(Action == ByteAction.Nothing) {
+                return;
+            }
             if (Byte != null) {
                 var bt = Byte.Value;
                 ThreadPool.QueueUserWorkItem(cb => {
@@ -339,15 +337,15 @@ namespace WPFHexaEditor.Control {
                     var hexabyte = ByteConverters.ByteToHexCharArray(bt);
                     if (priLevel == curLevel) {
                         this.Dispatcher.Invoke(() => {
-                            FirstHexChar.Text = hexabyte[0].ToString();
-                            SecondHexChar.Text = hexabyte[1].ToString();
+                            //FirstHexChar.Text = hexabyte[0].ToString();
+                            //SecondHexChar.Text = hexabyte[1].ToString();
                         });
                     }
                 });
             }
             else {
-                FirstHexChar.Text = string.Empty;
-                SecondHexChar.Text = string.Empty;
+                //FirstHexChar.Text = string.Empty;
+                //SecondHexChar.Text = string.Empty;
             }
         }
 
@@ -432,17 +430,17 @@ namespace WPFHexaEditor.Control {
 
                     switch (_keyDownLabel) {
                         case KeyDownLabel.FirstChar:
-                            FirstHexChar.Text = key;
+                            //FirstHexChar.Text = key;
                             _keyDownLabel = KeyDownLabel.SecondChar;
                             Action = ByteAction.Modified;
-                            Byte = ByteConverters.HexToByte(FirstHexChar.Text.ToString() + SecondHexChar.Text.ToString())[0];
+                            //Byte = ByteConverters.HexToByte(FirstHexChar.Text.ToString() + SecondHexChar.Text.ToString())[0];
                             break;
                         case KeyDownLabel.SecondChar:
-                            SecondHexChar.Text = key;
+                            //SecondHexChar.Text = key;
                             _keyDownLabel = KeyDownLabel.NextPosition;
 
                             Action = ByteAction.Modified;
-                            Byte = ByteConverters.HexToByte(FirstHexChar.Text.ToString() + SecondHexChar.Text.ToString())[0];
+                            //Byte = ByteConverters.HexToByte(FirstHexChar.Text.ToString() + SecondHexChar.Text.ToString())[0];
 
                             //Move focus event
                             MoveNext?.Invoke(this, new EventArgs());

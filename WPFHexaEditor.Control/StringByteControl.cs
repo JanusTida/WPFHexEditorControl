@@ -41,7 +41,7 @@ namespace WPFHexaEditor.Control {
         #endregion
     }
 
-    internal partial class StringByteControl : TextBlock, IByteControl {
+    internal partial class StringByteControl : Border, IByteControl {
         private TBLStream _TBLCharacterTable = null;
 
         public event EventHandler Click;
@@ -73,7 +73,7 @@ namespace WPFHexaEditor.Control {
             
             Focusable = true;
             DataContext = this;
-            TextAlignment = TextAlignment.Center;
+            //TextAlignment = TextAlignment.Center;
             var txtBinding = new Binding();
             txtBinding.Source = this.FindResource("ByteToolTip");
             txtBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
@@ -343,7 +343,7 @@ namespace WPFHexaEditor.Control {
                 var curLevel = ++priLevel;
                 var bt = Byte.Value;
                 var chTable = TypeOfCharacterTable;
-                
+
                 ThreadPool.QueueUserWorkItem(cb => {
                     switch (chTable) {
                         case CharacterTableType.ASCII:
@@ -352,7 +352,7 @@ namespace WPFHexaEditor.Control {
                             //Check whether the action has been out of "time".to aviod unnessarsery refreshing.
                             if (curLevel == priLevel) {
                                 this.Dispatcher.Invoke(() => {
-                                    Text = ch;
+                                    //Text = ch;
                                 });
                             }
 
@@ -370,7 +370,7 @@ namespace WPFHexaEditor.Control {
 
                                 if (curLevel == priLevel) {
                                     this.Dispatcher.Invoke(() => {
-                                        Text = content;
+                                        //Text = content;
                                         //Adjuste wight
                                         if (content.Length == 1)
                                             Width = 12;
@@ -387,8 +387,8 @@ namespace WPFHexaEditor.Control {
                     }
                 });
             }
-            else
-                Text = string.Empty;
+            else { }
+                //Text = string.Empty;
         }
         
         /// <summary>
@@ -396,12 +396,12 @@ namespace WPFHexaEditor.Control {
         //    /// </summary>
         internal void UpdateVisual() {
             if (IsFocus) {
-                Foreground = Brushes.White;
+                //Foreground = Brushes.White;
                 Background = Brushes.Black;
             }
             else if (IsSelected) {
-                FontWeight = NormalFontWeight;
-                Foreground = Brushes.White;
+                //FontWeight = NormalFontWeight;
+                //Foreground = Brushes.White;
 
                 if (FirstSelected)
                     Background = FirstColor;
@@ -411,28 +411,28 @@ namespace WPFHexaEditor.Control {
                 return;
             }
             else if (IsHighLight) {
-                FontWeight = NormalFontWeight;
-                Foreground = Brushes.Black;
+                //FontWeight = NormalFontWeight;
+                //Foreground = Brushes.Black;
 
                 Background = HighLightColor;
 
                 return;
             }
             else if (IsFocus) {
-                Foreground = Brushes.White;
+                //Foreground = Brushes.White;
                 Background = Brushes.Black;
             }
             else if (Action != ByteAction.Nothing) {
                 switch (Action) {
                     case ByteAction.Modified:
-                        FontWeight = BoldFontWeight;
+                        //FontWeight = BoldFontWeight;
                         Background = ByteModifiedColor;
-                        Foreground = Brushes.Black;
+                        //Foreground = Brushes.Black;
                         break;
                     case ByteAction.Deleted:
-                        FontWeight = BoldFontWeight;
+                        //FontWeight = BoldFontWeight;
                         Background = ByteDeletedColor;
-                        Foreground = Brushes.Black;
+                        //Foreground = Brushes.Black;
                         break;
                 }
 
@@ -440,22 +440,22 @@ namespace WPFHexaEditor.Control {
             }
             else {
                 
-                FontWeight = NormalFontWeight;
+                //FontWeight = NormalFontWeight;
                 Background = Brushes.Transparent;
-                Foreground = Brushes.Black;
+                //Foreground = Brushes.Black;
 
-                if (TypeOfCharacterTable == CharacterTableType.TBLFile)
-                    switch (DTE.TypeDTE((string)Text)) {
-                        case DTEType.DualTitleEncoding:
-                            Foreground = Brushes.Red;
-                            break;
-                        case DTEType.MultipleTitleEncoding:
-                            Foreground = Brushes.Blue;
-                            break;
-                        default:
-                            Foreground = Brushes.Black;
-                            break;
-                    }
+                if (TypeOfCharacterTable == CharacterTableType.TBLFile) { }
+                    //switch (DTE.TypeDTE((string)Text)) {
+                    //    case DTEType.DualTitleEncoding:
+                    //        //Foreground = Brushes.Red;
+                    //        break;
+                    //    case DTEType.MultipleTitleEncoding:
+                    //        Foreground = Brushes.Blue;
+                    //        break;
+                    //    default:
+                    //        Foreground = Brushes.Black;
+                    //        break;
+                    //}
             }
         }
 
@@ -533,22 +533,22 @@ namespace WPFHexaEditor.Control {
 
                 if (Keyboard.GetKeyStates(Key.CapsLock) == KeyStates.Toggled) {
                     if (Keyboard.Modifiers != ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift) {
-                        Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString();
+                        //Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString();
                         isok = true;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift) {
                         isok = true;
-                        Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString().ToLower();
+                        //Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString().ToLower();
                     }
                 }
                 else {
                     if (Keyboard.Modifiers != ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift) {
-                        Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString().ToLower();
+                        //Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString().ToLower();
                         isok = true;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift) {
                         isok = true;
-                        Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString();
+                        //Text = ByteConverters.ByteToChar((byte)KeyInterop.VirtualKeyFromKey(e.Key)).ToString();
                     }
                 }
 
@@ -556,7 +556,7 @@ namespace WPFHexaEditor.Control {
                 if (isok)
                     if (MoveNext != null) {
                         Action = ByteAction.Modified;
-                        Byte = ByteConverters.CharToByte(Text.ToString()[0]);
+                        //Byte = ByteConverters.CharToByte(Text.ToString()[0]);
 
                         MoveNext(this, new EventArgs());
                     }
